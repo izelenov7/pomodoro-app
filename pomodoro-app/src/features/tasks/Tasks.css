@@ -1,0 +1,185 @@
+/* Контейнер задач */
+.tasks {
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Заголовок */
+.tasks__header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.tasks__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2c3e50;
+  text-align: center;
+}
+
+.tasks__stats {
+  font-size: 0.875rem;
+  color: #7f8c8d;
+  background-color: #ecf0f1;
+  padding: 6px 12px;
+  border-radius: 20px;
+}
+
+/* Форма добавления */
+.tasks__add {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.tasks__add .input-wrapper {
+  flex: 1;
+}
+
+.tasks__add .btn {
+  flex-shrink: 0;
+}
+
+/* Пустой список */
+.tasks__empty {
+  text-align: center;
+  padding: 48px 24px;
+  color: #7f8c8d;
+}
+
+.tasks__empty p {
+  margin: 0 0 8px;
+  font-size: 1.125rem;
+}
+
+.tasks__empty-hint {
+  font-size: 0.875rem !important;
+  color: #95a5a6;
+}
+
+/* Список задач */
+.tasks__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Элемент задачи */
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background-color: white;
+  border: 2px solid #ecf0f1;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.task-item:hover {
+  border-color: #bdc3c7;
+}
+
+.task-item--completed {
+  background-color: #f9f9f9;
+  border-color: #ecf0f1;
+}
+
+/* Чекбокс */
+.task-item__checkbox {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.task-item__checkbox input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.task-item__checkmark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 2px solid #bdc3c7;
+  border-radius: 6px;
+  color: transparent;
+  transition: all 0.2s ease;
+}
+
+.task-item__checkbox input:checked + .task-item__checkmark {
+  background-color: #27ae60;
+  border-color: #27ae60;
+  color: white;
+}
+
+.task-item__checkmark svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Текст задачи */
+.task-item__text {
+  flex: 1;
+  font-size: 1rem;
+  color: #2c3e50;
+  word-break: break-word;
+  transition: all 0.2s ease;
+}
+
+.task-item--completed .task-item__text {
+  text-decoration: line-through;
+  color: #95a5a6;
+}
+
+/* Кнопка удаления */
+.task-item__delete {
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.task-item:hover .task-item__delete {
+  opacity: 1;
+}
+
+.task-item__delete:hover {
+  color: #e74c3c;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 480px) {
+  .tasks__add {
+    flex-direction: column;
+  }
+
+  .tasks__add .btn {
+    width: 100%;
+  }
+
+  .task-item__delete {
+    opacity: 1;
+  }
+}

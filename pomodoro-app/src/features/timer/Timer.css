@@ -1,0 +1,182 @@
+/* Контейнер таймера */
+.timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/* Заголовок */
+.timer__header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  margin-bottom: 32px;
+}
+
+.timer__phase {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  transition: color 0.3s ease;
+  text-align: center;
+}
+
+/* Дисплей с прогресс-баром */
+.timer__display {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  margin-bottom: 24px;
+}
+
+.timer__progress {
+  width: 100%;
+  height: 100%;
+}
+
+.timer__progress-bg {
+  opacity: 0.5;
+}
+
+.timer__progress-bar {
+  transition: stroke-dashoffset 1s linear, stroke 0.3s ease;
+}
+
+/* Время по центру */
+.timer__time {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #2c3e50;
+  transition: color 0.3s ease;
+}
+
+/* Счётчик помидоров */
+.timer__counter {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 32px;
+  font-size: 1.125rem;
+  color: #7f8c8d;
+}
+
+.timer__counter-icon {
+  font-size: 1.5rem;
+}
+
+.timer__counter-value {
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: #e74c3c;
+}
+
+.timer__counter-label {
+  font-size: 0.875rem;
+}
+
+.timer__reset-counter {
+  padding: 4px;
+  min-width: auto;
+}
+
+/* Индикаторы циклов */
+.timer__cycles {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 24px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 280px;
+}
+
+.timer__cycle-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #bdc3c7;
+  border: 2px solid #95a5a6;
+  transition: all 0.3s ease;
+}
+
+.timer__cycle-dot--gap {
+  visibility: hidden;
+  width: 8px;
+  border: none;
+}
+
+.timer__cycle-dot--completed {
+  background-color: #e74c3c !important;
+  border-color: #e74c3c !important;
+}
+
+.timer__cycle-dot--active {
+  background-color: #e74c3c !important;
+  border-color: #e74c3c !important;
+  box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.3);
+}
+
+.timer__cycle-dot--short-break {
+  background-color: #27ae60 !important;
+  border-color: #27ae60 !important;
+}
+
+.timer__cycle-dot--short-break-active {
+  background-color: #27ae60 !important;
+  border-color: #27ae60 !important;
+  box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.3);
+}
+
+.timer__cycle-dot--long-break {
+  background-color: #3498db !important;
+  border-color: #3498db !important;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.3);
+}
+
+/* Кнопки управления */
+.timer__controls {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.timer__controls .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timer__controls .btn svg {
+  flex-shrink: 0;
+}
+
+.timer__controls .btn span {
+  line-height: 1;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 480px) {
+  .timer__display {
+    width: 240px;
+    height: 240px;
+  }
+
+  .timer__time {
+    font-size: 2.5rem;
+  }
+
+  .timer__phase {
+    font-size: 1.25rem;
+  }
+}

@@ -1,0 +1,11 @@
+/**
+ * Стили корневого компонента App
+ *
+ * Минимальные стили, т.к. основные стили находятся в Layout
+ */
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
