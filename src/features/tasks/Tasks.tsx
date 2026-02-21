@@ -72,14 +72,14 @@ export const Tasks: React.FC = () => {
     if (sortedIndex > 0) {
       const currentTask = sortedTasks[sortedIndex];
       const targetTask = sortedTasks[sortedIndex - 1];
-      
+
       // Меняем order местами с предыдущей задачей
       const newTasks = state.tasks.map(t => {
         if (t.id === currentTask.id) return { ...t, order: targetTask.order };
         if (t.id === targetTask.id) return { ...t, order: currentTask.order };
         return t;
       });
-      
+
       dispatch({ type: 'REORDER_TASKS', payload: newTasks });
     }
   };
@@ -92,20 +92,27 @@ export const Tasks: React.FC = () => {
     if (sortedIndex !== -1 && sortedIndex < sortedTasks.length - 1) {
       const currentTask = sortedTasks[sortedIndex];
       const targetTask = sortedTasks[sortedIndex + 1];
-      
+
       // Меняем order местами со следующей задачей
       const newTasks = state.tasks.map(t => {
         if (t.id === currentTask.id) return { ...t, order: targetTask.order };
         if (t.id === targetTask.id) return { ...t, order: currentTask.order };
         return t;
       });
-      
+
       dispatch({ type: 'REORDER_TASKS', payload: newTasks });
     }
   };
 
-  // Сортировка задач: все задачи сортируются по order (выполненные и невыполненные вместе)
-  const sortedTasks = [...state.tasks].sort((a, b) => a.order - b.order);
+  // Сортировка задач: сначала невыполненные (по order), затем выполненные (по order)
+  const sortedTasks = [...state.tasks].sort((a, b) => {
+    // Сначала сортируем по статусу выполнения
+    if (a.completed !== b.completed) {
+      return a.completed ? 1 : -1;
+    }
+    // Внутри группы сортируем по order
+    return a.order - b.order;
+  });
 
   // Подсчёт статистики
   const completedCount = state.tasks.filter((t) => t.completed).length;

@@ -111,9 +111,28 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
       return { ...state, tasks: newTasks };
 
     case 'TOGGLE_TASK':
-      const toggledTasks = state.tasks.map((task) =>
-        task.id === action.payload ? { ...task, completed: !task.completed } : task
-      );
+      const toggledTasks = state.tasks.map((task) => {
+        if (task.id === action.payload) {
+          const newCompleted = !task.completed;
+          // Если задача становится выполненной, перемещаем её в начало группы выполненных
+          if (newCompleted) {
+            const completedTasks = state.tasks.filter(t => t.completed && t.id !== task.id);
+            if (completedTasks.length > 0) {
+              const minOrder = Math.min(...completedTasks.map(t => t.order));
+              return { ...task, completed: true, order: minOrder - 1 };
+            }
+            return { ...task, completed: true };
+          }
+          // Если задача становится невыполненной, перемещаем её вверх (минимальный order)
+          const uncompletedTasks = state.tasks.filter(t => !t.completed && t.id !== task.id);
+          if (uncompletedTasks.length > 0) {
+            const minOrder = Math.min(...uncompletedTasks.map(t => t.order));
+            return { ...task, completed: false, order: minOrder - 1 };
+          }
+          return { ...task, completed: false };
+        }
+        return task;
+      });
       localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(toggledTasks));
       return { ...state, tasks: toggledTasks };
 
