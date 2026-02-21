@@ -64,6 +64,8 @@ export interface Task {
   completed: boolean;
   /** Дата создания задачи (для сортировки) */
   createdAt: number;
+  /** Порядок задачи для ручного перемещения */
+  order: number;
 }
 
 /**
@@ -94,6 +96,9 @@ export type AppAction =
   | { type: 'ADD_TASK'; payload: string }
   | { type: 'TOGGLE_TASK'; payload: string }
   | { type: 'DELETE_TASK'; payload: string }
+  | { type: 'EDIT_TASK'; payload: { id: string; text: string } }
+  | { type: 'REORDER_TASKS'; payload: Task[] }
+  | { type: 'MOVE_TASK'; payload: { fromIndex: number; toIndex: number } }
   | { type: 'SET_NOTES'; payload: string }
   | { type: 'RESET_POMODORO_COUNT' }
   | { type: 'RESET_COMPLETED_POMODOROS' };

@@ -67,7 +67,10 @@ const getInitialState = (): AppState => {
     return {
       timerSettings,
       timerState: { ...timerState, currentCycle: correctedCycle },
-      tasks: storedTasks ? JSON.parse(storedTasks) : [],
+      tasks: storedTasks ? JSON.parse(storedTasks).map((task: Task, index: number) => ({
+        ...task,
+        order: task.order !== undefined ? task.order : index,
+      })) : [],
       notes: storedNotes || '',
       activeTab: 'timer',
     };
@@ -101,6 +104,7 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
         text: action.payload,
         completed: false,
         createdAt: Date.now(),
+        order: state.tasks.length > 0 ? Math.max(...state.tasks.map(t => t.order)) + 1 : 0,
       };
       const newTasks = [...state.tasks, newTask];
       localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(newTasks));
@@ -117,6 +121,25 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
       const filteredTasks = state.tasks.filter((task) => task.id !== action.payload);
       localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(filteredTasks));
       return { ...state, tasks: filteredTasks };
+
+    case 'EDIT_TASK':
+      const editedTasks = state.tasks.map((task) =>
+        task.id === action.payload.id ? { ...task, text: action.payload.text } : task
+      );
+      localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(editedTasks));
+      return { ...state, tasks: editedTasks };
+
+    case 'REORDER_TASKS':
+      localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(action.payload));
+      return { ...state, tasks: action.payload };
+
+    case 'MOVE_TASK':
+      const { fromIndex, toIndex } = action.payload;
+      const movedTasks = [...state.tasks];
+      const [movedTask] = movedTasks.splice(fromIndex, 1);
+      movedTasks.splice(toIndex, 0, movedTask);
+      localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(movedTasks));
+      return { ...state, tasks: movedTasks };
 
     case 'SET_NOTES':
       localStorage.setItem(STORAGE_KEYS.NOTES, action.payload);

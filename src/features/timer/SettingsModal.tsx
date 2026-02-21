@@ -18,11 +18,13 @@ interface SettingsModalProps {
 
 /**
  * Опции звуков для выбора
+ * Громкость: beep и chime на 20% тише остальных
  */
 const SOUND_OPTIONS = [
-  { value: 'beep', label: 'Одиночный сигнал' },
-  { value: 'chime', label: 'Двойной сигнал' },
-  { value: 'alarm', label: 'Тревожный' },
+  { value: 'beep', label: 'Одиночный сигнал (0.3 сек, тихий)' },
+  { value: 'chime', label: 'Двойной сигнал (0.65 сек, тихий)' },
+  { value: 'melody', label: 'Мелодия (2 сек, громкий)' },
+  { value: 'bells', label: 'Колокола (3 сек, громкий)' },
 ];
 
 /**

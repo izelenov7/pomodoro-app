@@ -112,7 +112,7 @@ export function useNotification(soundEnabled: boolean, selectedSound: string) {
           // Короткий одиночный сигнал
           oscillator.frequency.value = 800;
           oscillator.type = 'sine';
-          gainNode.gain.setValueAtTime(0.5, ctx.currentTime);
+          gainNode.gain.setValueAtTime(0.585, ctx.currentTime);
           gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
           oscillator.start(ctx.currentTime);
           oscillator.stop(ctx.currentTime + 0.3);
@@ -122,7 +122,7 @@ export function useNotification(soundEnabled: boolean, selectedSound: string) {
           // Приятный двойной сигнал (как колокольчик)
           oscillator.frequency.value = 523.25; // Нота C5
           oscillator.type = 'sine';
-          gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+          gainNode.gain.setValueAtTime(0.351, ctx.currentTime);
           gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
           oscillator.start(ctx.currentTime);
           oscillator.stop(ctx.currentTime + 0.5);
@@ -134,38 +134,97 @@ export function useNotification(soundEnabled: boolean, selectedSound: string) {
           gainNode2.connect(ctx.destination);
           oscillator2.frequency.value = 659.25; // Нота E5
           oscillator2.type = 'sine';
-          gainNode2.gain.setValueAtTime(0.3, ctx.currentTime + 0.15);
+          gainNode2.gain.setValueAtTime(0.351, ctx.currentTime + 0.15);
           gainNode2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.65);
           oscillator2.start(ctx.currentTime + 0.15);
           oscillator2.stop(ctx.currentTime + 0.65);
           break;
 
-        case 'alarm':
-          // Тревожный прерывистый сигнал
-          oscillator.frequency.value = 1000;
-          oscillator.type = 'square';
-
-          // Создаём модуляцию для прерывистого звука
-          const lfo = ctx.createOscillator();
-          lfo.frequency.value = 4; // 4 Гц модуляция
-          const lfoGain = ctx.createGain();
-          lfoGain.gain.value = 500;
-          lfo.connect(lfoGain);
-          lfoGain.connect(oscillator.frequency);
-          lfo.start(ctx.currentTime);
-          lfo.stop(ctx.currentTime + 1);
-
-          gainNode.gain.setValueAtTime(0.2, ctx.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1);
+        case 'melody':
+          // Длинная мелодия из 4 нот (2 секунды)
+          oscillator.frequency.value = 523.25; // C5
+          oscillator.type = 'sine';
+          gainNode.gain.setValueAtTime(0.351, ctx.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 2);
           oscillator.start(ctx.currentTime);
-          oscillator.stop(ctx.currentTime + 1);
+          oscillator.stop(ctx.currentTime + 2);
+
+          // Вторая нота (E5) через 0.5с
+          const osc2 = ctx.createOscillator();
+          const gain2 = ctx.createGain();
+          osc2.connect(gain2);
+          gain2.connect(ctx.destination);
+          osc2.frequency.value = 659.25;
+          osc2.type = 'sine';
+          gain2.gain.setValueAtTime(0.351, ctx.currentTime + 0.5);
+          gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 2);
+          osc2.start(ctx.currentTime + 0.5);
+          osc2.stop(ctx.currentTime + 2);
+
+          // Третья нота (G5) через 1с
+          const osc3 = ctx.createOscillator();
+          const gain3 = ctx.createGain();
+          osc3.connect(gain3);
+          gain3.connect(ctx.destination);
+          osc3.frequency.value = 783.99;
+          osc3.type = 'sine';
+          gain3.gain.setValueAtTime(0.351, ctx.currentTime + 1);
+          gain3.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 2);
+          osc3.start(ctx.currentTime + 1);
+          osc3.stop(ctx.currentTime + 2);
+
+          // Четвёртая нота (C6) через 1.5с
+          const osc4 = ctx.createOscillator();
+          const gain4 = ctx.createGain();
+          osc4.connect(gain4);
+          gain4.connect(ctx.destination);
+          osc4.frequency.value = 1046.50;
+          osc4.type = 'sine';
+          gain4.gain.setValueAtTime(0.351, ctx.currentTime + 1.5);
+          gain4.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 2);
+          osc4.start(ctx.currentTime + 1.5);
+          osc4.stop(ctx.currentTime + 2);
+          break;
+
+        case 'bells':
+          // Длинные колокола (3 секунды)
+          oscillator.frequency.value = 523.25; // C5
+          oscillator.type = 'sine';
+          gainNode.gain.setValueAtTime(0.351, ctx.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 3);
+          oscillator.start(ctx.currentTime);
+          oscillator.stop(ctx.currentTime + 3);
+
+          // Вторая нота (G5) через 0.8с
+          const bell2 = ctx.createOscillator();
+          const bellGain2 = ctx.createGain();
+          bell2.connect(bellGain2);
+          bellGain2.connect(ctx.destination);
+          bell2.frequency.value = 783.99;
+          bell2.type = 'sine';
+          bellGain2.gain.setValueAtTime(0.351, ctx.currentTime + 0.8);
+          bellGain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 3);
+          bell2.start(ctx.currentTime + 0.8);
+          bell2.stop(ctx.currentTime + 3);
+
+          // Третья нота (C6) через 1.6с
+          const bell3 = ctx.createOscillator();
+          const bellGain3 = ctx.createGain();
+          bell3.connect(bellGain3);
+          bellGain3.connect(ctx.destination);
+          bell3.frequency.value = 1046.50;
+          bell3.type = 'sine';
+          bellGain3.gain.setValueAtTime(0.351, ctx.currentTime + 1.6);
+          bellGain3.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 3);
+          bell3.start(ctx.currentTime + 1.6);
+          bell3.stop(ctx.currentTime + 3);
           break;
 
         default:
           // Звук по умолчанию (beep)
           oscillator.frequency.value = 800;
           oscillator.type = 'sine';
-          gainNode.gain.setValueAtTime(0.5, ctx.currentTime);
+          gainNode.gain.setValueAtTime(0.585, ctx.currentTime);
           gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
           oscillator.start(ctx.currentTime);
           oscillator.stop(ctx.currentTime + 0.3);

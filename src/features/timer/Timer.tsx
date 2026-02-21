@@ -33,7 +33,8 @@ export const Timer: React.FC = () => {
   const phaseColor = getPhaseColor(phase);
   const radius = 120;
   const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (progress / 100) * circumference;
+  // Против часовой стрелки: начинаем с 0 и увеличиваем до circumference
+  const strokeDashoffset = circumference * (progress / 100);
   const isBreak = phase === TimerPhase.ShortBreak || phase === TimerPhase.LongBreak;
 
   return (

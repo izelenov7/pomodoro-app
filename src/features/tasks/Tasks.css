@@ -154,19 +154,70 @@
   color: #95a5a6;
 }
 
-/* Кнопка удаления */
-.task-item__delete {
-  flex-shrink: 0;
+/* Контейнер действий */
+.task-item__actions {
+  display: flex;
+  gap: 4px;
   opacity: 0;
   transition: opacity 0.2s ease;
 }
 
-.task-item:hover .task-item__delete {
+.task-item:hover .task-item__actions {
   opacity: 1;
+}
+
+/* Кнопка перемещения */
+.task-item__move {
+  flex-shrink: 0;
+}
+
+.task-item__move:hover {
+  color: #9b59b6;
+}
+
+/* Кнопка редактирования */
+.task-item__edit {
+  flex-shrink: 0;
+}
+
+.task-item__edit:hover {
+  color: #3498db;
+}
+
+/* Кнопка удаления */
+.task-item__delete {
+  flex-shrink: 0;
 }
 
 .task-item__delete:hover {
   color: #e74c3c;
+}
+
+/* Режим редактирования */
+.task-item--editing {
+  background-color: #f5f6fa;
+  border-color: #3498db;
+}
+
+.task-item__edit-input {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 1rem;
+  border: 2px solid #3498db;
+  border-radius: 6px;
+  outline: none;
+  background-color: white;
+  color: #2c3e50;
+}
+
+.task-item__edit-input:focus {
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+.task-item__edit-buttons {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 /* Адаптивность для мобильных */
@@ -179,7 +230,7 @@
     width: 100%;
   }
 
-  .task-item__delete {
+  .task-item__actions {
     opacity: 1;
   }
 }
