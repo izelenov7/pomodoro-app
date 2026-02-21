@@ -11,10 +11,15 @@ const DEFAULT_SETTINGS: TimerSettings = {
   workDuration: 25,
   shortBreakDuration: 5,
   longBreakDuration: 15,
-  cyclesBeforeLongBreak: 4,
+  totalWorkPeriods: 12,
   soundEnabled: true,
   selectedSound: 'chime',
 };
+
+/**
+ * Фиксированное количество рабочих периодов до длинного перерыва
+ */
+const CYCLES_BEFORE_LONG_BREAK = 4;
 
 /**
  * Начальное состояние таймера
@@ -58,11 +63,23 @@ const getInitialState = (): AppState => {
     const storedTasks = localStorage.getItem(STORAGE_KEYS.TASKS);
     const storedNotes = localStorage.getItem(STORAGE_KEYS.NOTES);
 
-    const timerSettings = storedSettings ? JSON.parse(storedSettings) : DEFAULT_SETTINGS;
+    const parsedSettings = storedSettings ? JSON.parse(storedSettings) : DEFAULT_SETTINGS;
+    
+    // Миграция: если есть старое поле cyclesBeforeLongBreak, игнорируем его
+    // Если нет totalWorkPeriods, устанавливаем 12
+    const timerSettings: TimerSettings = {
+      workDuration: parsedSettings.workDuration ?? DEFAULT_SETTINGS.workDuration,
+      shortBreakDuration: parsedSettings.shortBreakDuration ?? DEFAULT_SETTINGS.shortBreakDuration,
+      longBreakDuration: parsedSettings.longBreakDuration ?? DEFAULT_SETTINGS.longBreakDuration,
+      totalWorkPeriods: parsedSettings.totalWorkPeriods ?? DEFAULT_SETTINGS.totalWorkPeriods,
+      soundEnabled: parsedSettings.soundEnabled ?? DEFAULT_SETTINGS.soundEnabled,
+      selectedSound: parsedSettings.selectedSound ?? DEFAULT_SETTINGS.selectedSound,
+    };
+    
     const timerState = storedTimerState ? JSON.parse(storedTimerState) : DEFAULT_TIMER_STATE;
 
     // Исправляем currentCycle на основе completedPomodoros
-    const correctedCycle = timerState.completedPomodoros % timerSettings.cyclesBeforeLongBreak;
+    const correctedCycle = timerState.completedPomodoros % CYCLES_BEFORE_LONG_BREAK;
 
     return {
       timerSettings,
@@ -201,14 +218,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const getNextPhase = useCallback((): { phase: TimerPhase; cycle: number } => {
     if (state.timerState.phase === TimerPhase.Work) {
       const newCycle = state.timerState.currentCycle + 1;
-      if (newCycle >= state.timerSettings.cyclesBeforeLongBreak) {
+      if (newCycle >= CYCLES_BEFORE_LONG_BREAK) {
         return { phase: TimerPhase.LongBreak, cycle: 0 };
       }
       return { phase: TimerPhase.ShortBreak, cycle: newCycle };
     }
     // При переходе от перерыва к работе сохраняем текущий цикл
     return { phase: TimerPhase.Work, cycle: state.timerState.currentCycle };
-  }, [state.timerState.phase, state.timerState.currentCycle, state.timerSettings.cyclesBeforeLongBreak]);
+  }, [state.timerState.phase, state.timerState.currentCycle]);
 
   /**
    * Обработчик завершения периода
@@ -227,10 +244,42 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       notificationMessage = next.phase === TimerPhase.LongBreak
         ? 'Отличная работа! Длинный перерыв.'
         : 'Работа завершена! Короткий перерыв.';
+      
+      // Проверка на достижение общего количества рабочих периодов
+      const isCycleComplete = newCompletedCount >= state.timerSettings.totalWorkPeriods;
+      
       dispatch({
         type: 'UPDATE_TIMER_STATE',
-        payload: { completedPomodoros: newCompletedCount },
+        payload: { 
+          completedPomodoros: newCompletedCount,
+          // Сброс цикла на 0 после достижения totalWorkPeriods (но счётчик помидоров сохраняется)
+          currentCycle: isCycleComplete ? 0 : next.cycle,
+        },
       });
+      
+      // Если цикл завершён, следующий этап — работа с начала
+      if (isCycleComplete) {
+        notificationMessage = 'Все помидоры завершены! Начинаем новый цикл.';
+        notifyPeriodEnd(notificationMessage);
+        
+        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage({
+            type: 'NOTIFY_PERIOD_END',
+            message: notificationMessage,
+          });
+        }
+        
+        dispatch({
+          type: 'UPDATE_TIMER_STATE',
+          payload: {
+            phase: TimerPhase.Work,
+            remainingTime: state.timerSettings.workDuration * 60,
+            currentCycle: 0,
+            isRunning: false,
+          },
+        });
+        return;
+      }
     } else {
       notificationMessage = 'Перерыв окончен, пора работать!';
     }

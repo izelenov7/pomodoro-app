@@ -48,7 +48,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     workDuration: state.timerSettings.workDuration,
     shortBreakDuration: state.timerSettings.shortBreakDuration,
     longBreakDuration: state.timerSettings.longBreakDuration,
-    cyclesBeforeLongBreak: state.timerSettings.cyclesBeforeLongBreak,
+    totalWorkPeriods: state.timerSettings.totalWorkPeriods,
     soundEnabled: state.timerSettings.soundEnabled,
     selectedSound: state.timerSettings.selectedSound,
   });
@@ -60,7 +60,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         workDuration: state.timerSettings.workDuration,
         shortBreakDuration: state.timerSettings.shortBreakDuration,
         longBreakDuration: state.timerSettings.longBreakDuration,
-        cyclesBeforeLongBreak: state.timerSettings.cyclesBeforeLongBreak,
+        totalWorkPeriods: state.timerSettings.totalWorkPeriods,
         soundEnabled: state.timerSettings.soundEnabled,
         selectedSound: state.timerSettings.selectedSound,
       });
@@ -68,14 +68,40 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   }, [isOpen, state.timerSettings]);
 
   // Обработчик изменения числовых полей
-  const handleNumberChange = (field: keyof typeof formData) => (
+  const handleNumberChange = (field: keyof typeof formData, min: number, max: number) => (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const value = parseInt(event.target.value, 10);
-    if (!isNaN(value) && value > 0) {
+    if (!isNaN(value) && value >= min && value <= max) {
       setFormData((prev) => ({ ...prev, [field]: value }));
     }
   };
+
+  // Обработчик изменения слайдера
+  const handleSliderChange = (field: keyof typeof formData) => (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = parseInt(event.target.value, 10);
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    
+    // Обновляем заполнение слайдера
+    const slider = event.target;
+    const min = parseInt(slider.min, 10);
+    const max = parseInt(slider.max, 10);
+    const percentage = ((value - min) / (max - min)) * 100;
+    slider.style.setProperty('--slider-fill', `${percentage}%`);
+  };
+
+  // Обновление заполнения слайдера при монтировании и изменении значения
+  React.useEffect(() => {
+    const slider = document.querySelector('.settings-modal__slider') as HTMLInputElement;
+    if (slider) {
+      const min = parseInt(slider.min, 10);
+      const max = parseInt(slider.max, 10);
+      const percentage = ((formData.totalWorkPeriods - min) / (max - min)) * 100;
+      slider.style.setProperty('--slider-fill', `${percentage}%`);
+    }
+  }, [formData.totalWorkPeriods]);
 
   // Обработчик изменения переключателя звука
   const handleSoundEnabledChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,7 +119,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       workDuration: formData.workDuration,
       shortBreakDuration: formData.shortBreakDuration,
       longBreakDuration: formData.longBreakDuration,
-      cyclesBeforeLongBreak: formData.cyclesBeforeLongBreak,
+      totalWorkPeriods: formData.totalWorkPeriods,
       soundEnabled: formData.soundEnabled,
       selectedSound: formData.selectedSound,
     };
@@ -133,7 +159,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             max="120"
             label="Рабочий период"
             value={formData.workDuration}
-            onChange={handleNumberChange('workDuration')}
+            onChange={handleNumberChange('workDuration', 1, 120)}
           />
 
           <Input
@@ -142,7 +168,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             max="60"
             label="Короткий перерыв"
             value={formData.shortBreakDuration}
-            onChange={handleNumberChange('shortBreakDuration')}
+            onChange={handleNumberChange('shortBreakDuration', 1, 60)}
           />
 
           <Input
@@ -151,20 +177,36 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             max="60"
             label="Длинный перерыв"
             value={formData.longBreakDuration}
-            onChange={handleNumberChange('longBreakDuration')}
+            onChange={handleNumberChange('longBreakDuration', 1, 60)}
           />
         </div>
 
-        {/* Количество циклов */}
+        {/* Количество рабочих периодов */}
         <div className="settings-modal__section">
-          <Input
-            type="number"
-            min="1"
-            max="10"
-            label="Количество рабочих периодов до длинного перерыва"
-            value={formData.cyclesBeforeLongBreak}
-            onChange={handleNumberChange('cyclesBeforeLongBreak')}
-          />
+          <div className="settings-modal__slider-wrapper">
+            <div className="settings-modal__slider-header">
+              <label className="settings-modal__slider-label">
+                Общее количество рабочих периодов
+              </label>
+              <span className="settings-modal__slider-value">{formData.totalWorkPeriods}</span>
+            </div>
+            <input
+              type="range"
+              min="4"
+              max="24"
+              step="1"
+              value={formData.totalWorkPeriods}
+              onChange={handleSliderChange('totalWorkPeriods')}
+              className="settings-modal__slider"
+            />
+            <div className="settings-modal__slider-labels">
+              <span>4</span>
+              <span>24</span>
+            </div>
+          </div>
+          <p className="settings-modal__hint">
+            После каждых 4 периодов — длинный перерыв. По завершении всех периодов цикл начинается заново.
+          </p>
         </div>
 
         {/* Настройки звука */}

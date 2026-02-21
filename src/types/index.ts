@@ -26,8 +26,8 @@ export interface TimerSettings {
   shortBreakDuration: number;
   /** Длительность длинного перерыва в минутах (по умолчанию 15) */
   longBreakDuration: number;
-  /** Количество рабочих периодов до длинного перерыва (по умолчанию 4) */
-  cyclesBeforeLongBreak: number;
+  /** Общее количество рабочих периодов (по умолчанию 12, от 4 до 24) */
+  totalWorkPeriods: number;
   /** Включён ли звуковой сигнал */
   soundEnabled: boolean;
   /** Название выбранного звукового файла */

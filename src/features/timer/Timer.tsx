@@ -113,55 +113,54 @@ export const Timer: React.FC = () => {
 
       {/* Индикаторы циклов */}
       <div className="timer__cycles">
-        {Array.from({ length: 14 }).map((_, index) => {
-          // Разделитель после каждых 4 шариков (индексы 4 и 9)
-          // 0,1,2,3 = первая группа, 4 = разделитель, 5,6,7,8 = вторая группа, 9 = разделитель, 10,11,12,13 = третья группа
-          const isLongBreakGap = index === 4 || index === 9;
+        {(() => {
+          const totalPeriods = state.timerSettings.totalWorkPeriods;
+          const periodsPerRow = 4; // фиксированное значение - 4 шарика в ряду
+          const elements: React.JSX.Element[] = [];
+          const completedInCycle = state.timerState.completedPomodoros % totalPeriods;
 
-          // Реальный индекс шарика (без учёта разделителей)
-          // index 0-3 → dotIndex 0-3, index 4 = разделитель
-          // index 5-8 → dotIndex 4-7, index 9 = разделитель
-          // index 10-13 → dotIndex 8-11
-          const dotIndex = index > 9 ? index - 2 : index > 4 ? index - 1 : index;
+          // Генерируем шарики слева направо, сверху вниз
+          // Каждый ряд содержит максимум 4 шарика
+          for (let dotIndex = 0; dotIndex < totalPeriods; dotIndex++) {
+            // Добавляем разделитель (пустое место) после каждых 4 шариков
+            if (dotIndex > 0 && dotIndex % periodsPerRow === 0) {
+              elements.push(
+                <div
+                  key={`gap-${Math.floor(dotIndex / periodsPerRow)}`}
+                  className="timer__cycle-dot timer__cycle-dot--gap"
+                  aria-hidden="true"
+                />
+              );
+            }
 
-          if (isLongBreakGap) {
-            return (
+            // Определяем, закрашен ли шарик (предыдущие помидоры в текущем цикле)
+            const isCompleted = dotIndex < completedInCycle;
+            // Активен ли текущий шарик
+            const isActive = dotIndex === completedInCycle && state.timerState.phase === TimerPhase.Work;
+
+            let className = 'timer__cycle-dot';
+            let dotColor = '';
+
+            if (isCompleted) {
+              className += ' timer__cycle-dot--completed';
+              dotColor = getPhaseColor(TimerPhase.Work);
+            } else if (isActive) {
+              className += ' timer__cycle-dot--active';
+              dotColor = getPhaseColor(TimerPhase.Work);
+            }
+
+            elements.push(
               <div
-                key={index}
-                className="timer__cycle-dot timer__cycle-dot--gap"
-                aria-hidden="true"
+                key={`dot-${dotIndex}`}
+                className={className}
+                style={dotColor ? { backgroundColor: dotColor, borderColor: dotColor } : undefined}
+                aria-label={`Период ${dotIndex + 1}`}
               />
             );
           }
 
-          // После 12 помидоров индикаторы сбрасываются (показываем только активный или все серые)
-          const completedInCycle = state.timerState.completedPomodoros % 12;
-          const isCompleted = dotIndex < completedInCycle;
-          const isActive = dotIndex === completedInCycle && phase === TimerPhase.Work;
-
-          // Определяем класс и цвет
-          let className = 'timer__cycle-dot';
-          let dotColor = '';
-
-          if (isCompleted) {
-            // Завершённый рабочий цикл
-            className += ' timer__cycle-dot--completed';
-            dotColor = getPhaseColor(TimerPhase.Work);
-          } else if (isActive) {
-            // Текущий рабочий цикл
-            className += ' timer__cycle-dot--active';
-            dotColor = getPhaseColor(TimerPhase.Work);
-          }
-
-          return (
-            <div
-              key={index}
-              className={className}
-              style={dotColor ? { backgroundColor: dotColor, borderColor: dotColor } : undefined}
-              aria-label={`Цикл ${dotIndex + 1}`}
-            />
-          );
-        })}
+          return elements;
+        })()}
       </div>
 
       {/* Кнопки управления */}

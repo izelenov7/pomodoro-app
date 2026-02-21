@@ -92,11 +92,11 @@
 /* Индикаторы циклов */
 .timer__cycles {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   margin-bottom: 24px;
   align-items: center;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   max-width: 280px;
 }
 
