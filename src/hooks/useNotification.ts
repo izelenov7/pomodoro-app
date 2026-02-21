@@ -99,135 +99,59 @@ export function useNotification(soundEnabled: boolean, selectedSound: string) {
     }
 
     try {
-      // Создаём осциллятор для генерации звука
-      const oscillator = ctx.createOscillator();
-      const gainNode = ctx.createGain();
-
-      oscillator.connect(gainNode);
-      gainNode.connect(ctx.destination);
+      // Вспомогательная функция для воспроизведения тона
+      const playTone = (frequency: number, startTime: number, duration: number, volume: number) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        
+        osc.frequency.value = frequency;
+        osc.type = 'sine';
+        
+        // Плавное начало и затухание для избежания щелчков
+        gain.gain.setValueAtTime(0, startTime);
+        gain.gain.linearRampToValueAtTime(volume, startTime + 0.05);
+        gain.gain.setValueAtTime(volume, startTime + duration - 0.05);
+        gain.gain.linearRampToValueAtTime(0, startTime + duration);
+        
+        osc.start(startTime);
+        osc.stop(startTime + duration);
+      };
 
       // Настройка звука в зависимости от типа
       switch (soundType) {
         case 'beep':
-          // Короткий одиночный сигнал
-          oscillator.frequency.value = 800;
-          oscillator.type = 'sine';
-          gainNode.gain.setValueAtTime(0.585, ctx.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-          oscillator.start(ctx.currentTime);
-          oscillator.stop(ctx.currentTime + 0.3);
+          // Громкий одиночный сигнал
+          playTone(880, ctx.currentTime, 0.5, 0.5);
           break;
 
         case 'chime':
-          // Приятный двойной сигнал (как колокольчик)
-          oscillator.frequency.value = 523.25; // Нота C5
-          oscillator.type = 'sine';
-          gainNode.gain.setValueAtTime(0.351, ctx.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
-          oscillator.start(ctx.currentTime);
-          oscillator.stop(ctx.currentTime + 0.5);
-
-          // Вторая нота через небольшую паузу
-          const oscillator2 = ctx.createOscillator();
-          const gainNode2 = ctx.createGain();
-          oscillator2.connect(gainNode2);
-          gainNode2.connect(ctx.destination);
-          oscillator2.frequency.value = 659.25; // Нота E5
-          oscillator2.type = 'sine';
-          gainNode2.gain.setValueAtTime(0.351, ctx.currentTime + 0.15);
-          gainNode2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.65);
-          oscillator2.start(ctx.currentTime + 0.15);
-          oscillator2.stop(ctx.currentTime + 0.65);
+          // Громкий двойной сигнал - два отчётливых тона
+          playTone(523.25, ctx.currentTime, 0.4, 0.5); // C5 - первый сигнал
+          playTone(1046.50, ctx.currentTime + 0.35, 0.4, 0.5); // C6 - второй сигнал (октава выше)
           break;
 
         case 'melody':
-          // Длинная мелодия из 4 нот (2 секунды)
-          oscillator.frequency.value = 523.25; // C5
-          oscillator.type = 'sine';
-          gainNode.gain.setValueAtTime(0.351, ctx.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 2);
-          oscillator.start(ctx.currentTime);
-          oscillator.stop(ctx.currentTime + 2);
-
-          // Вторая нота (E5) через 0.5с
-          const osc2 = ctx.createOscillator();
-          const gain2 = ctx.createGain();
-          osc2.connect(gain2);
-          gain2.connect(ctx.destination);
-          osc2.frequency.value = 659.25;
-          osc2.type = 'sine';
-          gain2.gain.setValueAtTime(0.351, ctx.currentTime + 0.5);
-          gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 2);
-          osc2.start(ctx.currentTime + 0.5);
-          osc2.stop(ctx.currentTime + 2);
-
-          // Третья нота (G5) через 1с
-          const osc3 = ctx.createOscillator();
-          const gain3 = ctx.createGain();
-          osc3.connect(gain3);
-          gain3.connect(ctx.destination);
-          osc3.frequency.value = 783.99;
-          osc3.type = 'sine';
-          gain3.gain.setValueAtTime(0.351, ctx.currentTime + 1);
-          gain3.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 2);
-          osc3.start(ctx.currentTime + 1);
-          osc3.stop(ctx.currentTime + 2);
-
-          // Четвёртая нота (C6) через 1.5с
-          const osc4 = ctx.createOscillator();
-          const gain4 = ctx.createGain();
-          osc4.connect(gain4);
-          gain4.connect(ctx.destination);
-          osc4.frequency.value = 1046.50;
-          osc4.type = 'sine';
-          gain4.gain.setValueAtTime(0.351, ctx.currentTime + 1.5);
-          gain4.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 2);
-          osc4.start(ctx.currentTime + 1.5);
-          osc4.stop(ctx.currentTime + 2);
+          // Мелодия из 4 нот (мажорное трезвучие)
+          playTone(523.25, ctx.currentTime, 0.3, 0.8); // C5
+          playTone(659.25, ctx.currentTime + 0.3, 0.3, 0.8); // E5
+          playTone(783.99, ctx.currentTime + 0.6, 0.3, 0.8); // G5
+          playTone(1046.50, ctx.currentTime + 0.9, 0.5, 0.8); // C6
           break;
 
         case 'bells':
-          // Длинные колокола (3 секунды)
-          oscillator.frequency.value = 523.25; // C5
-          oscillator.type = 'sine';
-          gainNode.gain.setValueAtTime(0.351, ctx.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 3);
-          oscillator.start(ctx.currentTime);
-          oscillator.stop(ctx.currentTime + 3);
-
-          // Вторая нота (G5) через 0.8с
-          const bell2 = ctx.createOscillator();
-          const bellGain2 = ctx.createGain();
-          bell2.connect(bellGain2);
-          bellGain2.connect(ctx.destination);
-          bell2.frequency.value = 783.99;
-          bell2.type = 'sine';
-          bellGain2.gain.setValueAtTime(0.351, ctx.currentTime + 0.8);
-          bellGain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 3);
-          bell2.start(ctx.currentTime + 0.8);
-          bell2.stop(ctx.currentTime + 3);
-
-          // Третья нота (C6) через 1.6с
-          const bell3 = ctx.createOscillator();
-          const bellGain3 = ctx.createGain();
-          bell3.connect(bellGain3);
-          bellGain3.connect(ctx.destination);
-          bell3.frequency.value = 1046.50;
-          bell3.type = 'sine';
-          bellGain3.gain.setValueAtTime(0.351, ctx.currentTime + 1.6);
-          bellGain3.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 3);
-          bell3.start(ctx.currentTime + 1.6);
-          bell3.stop(ctx.currentTime + 3);
+          // Колокола - три длинных тона
+          playTone(523.25, ctx.currentTime, 0.8, 0.9); // C5
+          playTone(783.99, ctx.currentTime + 0.7, 0.8, 0.9); // G5
+          playTone(1046.50, ctx.currentTime + 1.4, 1.0, 0.9); // C6
           break;
 
         default:
-          // Звук по умолчанию (beep)
-          oscillator.frequency.value = 800;
-          oscillator.type = 'sine';
-          gainNode.gain.setValueAtTime(0.585, ctx.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-          oscillator.start(ctx.currentTime);
-          oscillator.stop(ctx.currentTime + 0.3);
+          // Звук по умолчанию (как chime)
+          playTone(523.25, ctx.currentTime, 0.4, 1.0);
+          playTone(1046.50, ctx.currentTime + 0.35, 0.4, 1.0);
       }
     } catch (error) {
       console.warn('Ошибка при воспроизведении звука:', error);

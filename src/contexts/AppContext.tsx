@@ -214,18 +214,24 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   /**
    * Определяет следующий этап таймера
+   * Большой перерыв наступает только после 4 рабочих периодов
    */
-  const getNextPhase = useCallback((): { phase: TimerPhase; cycle: number } => {
+  const getNextPhase = useCallback((): { phase: TimerPhase; completedInCycle: number } => {
     if (state.timerState.phase === TimerPhase.Work) {
-      const newCycle = state.timerState.currentCycle + 1;
-      if (newCycle >= CYCLES_BEFORE_LONG_BREAK) {
-        return { phase: TimerPhase.LongBreak, cycle: 0 };
+      // Считаем количество завершённых помидоров в текущем цикле
+      const completedInCycle = state.timerState.completedPomodoros % CYCLES_BEFORE_LONG_BREAK;
+      const newCompletedInCycle = completedInCycle + 1;
+      
+      // Если завершено 4 помидора в цикле — большой перерыв
+      if (newCompletedInCycle >= CYCLES_BEFORE_LONG_BREAK) {
+        return { phase: TimerPhase.LongBreak, completedInCycle: 0 };
       }
-      return { phase: TimerPhase.ShortBreak, cycle: newCycle };
+      // Иначе короткий перерыв, сохраняем счётчик в цикле
+      return { phase: TimerPhase.ShortBreak, completedInCycle: newCompletedInCycle };
     }
-    // При переходе от перерыва к работе сохраняем текущий цикл
-    return { phase: TimerPhase.Work, cycle: state.timerState.currentCycle };
-  }, [state.timerState.phase, state.timerState.currentCycle]);
+    // При переходе от перерыва к работе сохраняем текущее количество завершённых в цикле
+    return { phase: TimerPhase.Work, completedInCycle: state.timerState.completedPomodoros % CYCLES_BEFORE_LONG_BREAK };
+  }, [state.timerState.phase, state.timerState.completedPomodoros]);
 
   /**
    * Обработчик завершения периода
@@ -244,31 +250,31 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       notificationMessage = next.phase === TimerPhase.LongBreak
         ? 'Отличная работа! Длинный перерыв.'
         : 'Работа завершена! Короткий перерыв.';
-      
+
       // Проверка на достижение общего количества рабочих периодов
       const isCycleComplete = newCompletedCount >= state.timerSettings.totalWorkPeriods;
-      
+
       dispatch({
         type: 'UPDATE_TIMER_STATE',
-        payload: { 
+        payload: {
           completedPomodoros: newCompletedCount,
-          // Сброс цикла на 0 после достижения totalWorkPeriods (но счётчик помидоров сохраняется)
-          currentCycle: isCycleComplete ? 0 : next.cycle,
+          // currentCycle теперь вычисляется динамически через completedPomodoros % CYCLES_BEFORE_LONG_BREAK
+          currentCycle: next.completedInCycle,
         },
       });
-      
+
       // Если цикл завершён, следующий этап — работа с начала
       if (isCycleComplete) {
         notificationMessage = 'Все помидоры завершены! Начинаем новый цикл.';
         notifyPeriodEnd(notificationMessage);
-        
+
         if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
           navigator.serviceWorker.controller.postMessage({
             type: 'NOTIFY_PERIOD_END',
             message: notificationMessage,
           });
         }
-        
+
         dispatch({
           type: 'UPDATE_TIMER_STATE',
           payload: {
@@ -304,7 +310,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       payload: {
         phase: next.phase,
         remainingTime: phaseDuration,
-        currentCycle: next.cycle,
+        currentCycle: next.completedInCycle,
         isRunning: false,
       },
     });
