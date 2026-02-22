@@ -32,6 +32,8 @@ export interface TimerSettings {
   soundEnabled: boolean;
   /** Название выбранного звукового файла */
   selectedSound: string;
+  /** Громкость звука в процентах (по умолчанию 50, от 0 до 100) */
+  soundVolume: number;
 }
 
 /**

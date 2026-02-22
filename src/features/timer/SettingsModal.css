@@ -184,6 +184,57 @@
   padding: 0 2px;
 }
 
+/* Контроль громкости */
+.settings-modal__volume-control {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.settings-modal__volume-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.settings-modal__volume-slider {
+  --slider-fill: 50%;
+}
+
+.settings-modal__volume-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.settings-modal__preview-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 2px solid #3498db;
+  border-radius: 8px;
+  background-color: white;
+  color: #3498db;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.settings-modal__preview-btn:hover:not(:disabled) {
+  background-color: #3498db;
+  color: white;
+}
+
+.settings-modal__preview-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: #bdc3c7;
+  color: #bdc3c7;
+}
+
 /* Адаптивность для мобильных */
 @media (max-width: 480px) {
   .settings-modal__actions {

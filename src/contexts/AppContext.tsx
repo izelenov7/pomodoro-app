@@ -14,6 +14,7 @@ const DEFAULT_SETTINGS: TimerSettings = {
   totalWorkPeriods: 12,
   soundEnabled: true,
   selectedSound: 'chime',
+  soundVolume: 50,
 };
 
 /**
@@ -74,6 +75,7 @@ const getInitialState = (): AppState => {
       totalWorkPeriods: parsedSettings.totalWorkPeriods ?? DEFAULT_SETTINGS.totalWorkPeriods,
       soundEnabled: parsedSettings.soundEnabled ?? DEFAULT_SETTINGS.soundEnabled,
       selectedSound: parsedSettings.selectedSound ?? DEFAULT_SETTINGS.selectedSound,
+      soundVolume: parsedSettings.soundVolume ?? DEFAULT_SETTINGS.soundVolume,
     };
     
     const timerState = storedTimerState ? JSON.parse(storedTimerState) : DEFAULT_TIMER_STATE;
@@ -210,7 +212,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // Рефы для таймера (глобальные, не зависят от монтирования компонентов)
   const intervalRef = useRef<number | null>(null);
   const lastTickRef = useRef<number | null>(null);
-  const { notifyPeriodEnd } = useNotification(state.timerSettings.soundEnabled, state.timerSettings.selectedSound);
+  const { notifyPeriodEnd } = useNotification(state.timerSettings.soundEnabled, state.timerSettings.selectedSound, state.timerSettings.soundVolume);
 
   /**
    * Определяет следующий этап таймера
